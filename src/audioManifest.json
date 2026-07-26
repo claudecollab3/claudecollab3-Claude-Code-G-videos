@@ -1,1 +1,15 @@
-{}
+{
+  "01_hook": "audio/01_hook.mp3",
+  "02_number": "audio/02_number.mp3",
+  "03_scope": "audio/03_scope.mp3",
+  "04_papermill_def": "audio/04_papermill_def.mp3",
+  "05_demand": "audio/05_demand.mp3",
+  "06_supply": "audio/06_supply.mp3",
+  "07_method": "audio/07_method.mp3",
+  "08_accuracy": "audio/08_accuracy.mp3",
+  "09_country": "audio/09_country.mp3",
+  "10_twist": "audio/10_twist.mp3",
+  "11_caveat": "audio/11_caveat.mp3",
+  "12_scale": "audio/12_scale.mp3",
+  "13_closer": "audio/13_closer.mp3"
+}
