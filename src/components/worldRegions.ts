@@ -9,12 +9,12 @@ export type Region = {
 };
 
 export const REGIONS: Region[] = [
-  {id: 'na', cx: 470, cy: 360, rx: 160, ry: 110},
-  {id: 'sa', cx: 590, cy: 680, rx: 90, ry: 150},
-  {id: 'eu', cx: 960, cy: 300, rx: 70, ry: 60},
-  {id: 'af', cx: 990, cy: 540, rx: 105, ry: 155},
-  {id: 'as', cx: 1260, cy: 370, rx: 220, ry: 140},
-  {id: 'au', cx: 1520, cy: 700, rx: 80, ry: 50},
+  {id: 'na', cx: 380, cy: 340, rx: 150, ry: 105},
+  {id: 'sa', cx: 500, cy: 680, rx: 90, ry: 150},
+  {id: 'eu', cx: 880, cy: 260, rx: 65, ry: 55},
+  {id: 'af', cx: 900, cy: 540, rx: 100, ry: 150},
+  {id: 'as', cx: 1330, cy: 380, rx: 240, ry: 150},
+  {id: 'au', cx: 1620, cy: 720, rx: 80, ry: 50},
 ];
 
 export type Dot = {x: number; y: number; region: string; seed: number};

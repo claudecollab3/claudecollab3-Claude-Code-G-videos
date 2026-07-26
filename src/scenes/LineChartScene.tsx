@@ -63,10 +63,10 @@ export const LineChartScene: React.FC = () => {
           <circle cx={endTop[0]} cy={endTop[1]} r={7} fill={COLORS.amber} />
         )}
 
-        <text x={CHART_LEFT} y={CHART_BOTTOM + 46} fill={COLORS.textDim} fontSize={26} fontFamily={undefined}>
+        <text x={CHART_LEFT} y={CHART_BOTTOM + 46} fill={COLORS.textDim} fontSize={26} fontFamily={bodyFontFamily}>
           1999
         </text>
-        <text x={CHART_RIGHT - 60} y={CHART_BOTTOM + 46} fill={COLORS.textDim} fontSize={26}>
+        <text x={CHART_RIGHT - 60} y={CHART_BOTTOM + 46} fill={COLORS.textDim} fontSize={26} fontFamily={bodyFontFamily}>
           2024
         </text>
       </svg>

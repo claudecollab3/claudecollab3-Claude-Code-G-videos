@@ -18,8 +18,8 @@ export const WorldMapScene: React.FC<{
     if (variant === 'scope') {
       return d.seed % 5 === 0;
     }
-    if (d.region === 'as') return d.seed % 2 === 0;
-    return d.seed % 17 === 0;
+    if (d.region === 'as') return d.seed % 4 !== 0;
+    return d.seed % 29 === 0;
   };
 
   return (
