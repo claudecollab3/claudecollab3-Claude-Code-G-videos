@@ -15,10 +15,16 @@ export const shortsDurationInFrames = () => Math.round(SHORTS_TOTAL_SECONDS * SH
 
 export const ShortsCut: React.FC = () => {
   let cursorFrames = 0;
+  let openBookendEnd = 0;
+  let closeBookendStart = Infinity;
   const sceneSequences = SHORTS_SCENE_PLAN.map((entry, i) => {
     const startFrame = cursorFrames;
     const durationInFrames = Math.round(entry.seconds * SHORTS_FPS);
     cursorFrames += durationInFrames;
+    if (entry.id === "LOOP-BOOKEND") {
+      if (i === 0) openBookendEnd = startFrame + durationInFrames;
+      else closeBookendStart = startFrame;
+    }
     const Scene = getSceneComponent(entry.id);
     return (
       <Sequence key={`${entry.id}-${i}`} from={startFrame} durationInFrames={durationInFrames}>
@@ -26,6 +32,12 @@ export const ShortsCut: React.FC = () => {
       </Sequence>
     );
   });
+
+  // Keep both loop-bookend instances caption-free so the very first frame and
+  // the very last frame stay pixel-identical (the hard-loop requirement).
+  const captionCards = buildShortsCaptionCards(SHORTS_FPS).filter(
+    (card) => card.startFrame >= openBookendEnd && card.startFrame + card.durationInFrames <= closeBookendStart,
+  );
 
   return (
     <AbsoluteFill style={{ background: COLORS.bg }}>
@@ -39,7 +51,7 @@ export const ShortsCut: React.FC = () => {
         </Sequence>
       ))}
       {sceneSequences}
-      <CaptionsTrack aspect="vertical" cards={buildShortsCaptionCards(SHORTS_FPS)} />
+      <CaptionsTrack aspect="vertical" cards={captionCards} />
     </AbsoluteFill>
   );
 };
