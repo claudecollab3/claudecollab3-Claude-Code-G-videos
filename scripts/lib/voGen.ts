@@ -1,6 +1,15 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
+import path from "node:path";
 import { Act } from "../../src/constants/script";
+
+// Loads ELEVENLABS_API_KEY (and anything else) from a git-ignored .env at
+// the repo root, if present, without adding a dotenv dependency.
+try {
+  process.loadEnvFile(path.join(__dirname, "..", "..", ".env"));
+} catch {
+  // No .env file — fine, falls through to the placeholder-silence path below.
+}
 
 const VOICE_ID_ADAM = "pNInz6obpgDQGcFmaJgB"; // ElevenLabs premade voice "Adam"
 
