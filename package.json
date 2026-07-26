@@ -1,0 +1,50 @@
+{
+  "name": "cancer-papers-video",
+  "version": "1.0.0",
+  "description": "My Remotion video",
+  "repository": {},
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@remotion/cli": "4.0.499",
+    "@remotion/google-fonts": "^4.0.499",
+    "d3-force": "^3.0.0",
+    "d3-scale": "^4.0.2",
+    "d3-shape": "^3.2.0",
+    "prop-types": "^15.8.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-simple-maps": "^3.0.0",
+    "recharts": "^3.10.1",
+    "remotion": "4.0.499",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.499",
+    "@types/d3-force": "^3.0.10",
+    "@types/react": "19.2.7",
+    "@types/react-simple-maps": "^3.0.6",
+    "@types/topojson-client": "^3.1.5",
+    "@types/topojson-specification": "^1.0.5",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.8.1",
+    "tsx": "^4.23.1",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc",
+    "generate-vo": "tsx scripts/generate-vo.ts",
+    "generate-vo-shorts": "tsx scripts/generate-vo-shorts.ts"
+  },
+  "sideEffects": [
+    "*.css"
+  ],
+  "overrides": {
+    "ajv": "^8.20.0"
+  }
+}

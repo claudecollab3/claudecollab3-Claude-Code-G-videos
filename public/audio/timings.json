@@ -1,0 +1,50 @@
+{
+  "generatedAt": "2026-07-26T00:51:36.217Z",
+  "source": "placeholder-silence",
+  "interActGapSeconds": 0.4,
+  "acts": [
+    {
+      "id": "act-01",
+      "file": "audio/act-01.wav",
+      "durationSeconds": 5,
+      "startSeconds": 0
+    },
+    {
+      "id": "act-02",
+      "file": "audio/act-02.wav",
+      "durationSeconds": 25,
+      "startSeconds": 5.4
+    },
+    {
+      "id": "act-03",
+      "file": "audio/act-03.wav",
+      "durationSeconds": 60,
+      "startSeconds": 30.799999999999997
+    },
+    {
+      "id": "act-04",
+      "file": "audio/act-04.wav",
+      "durationSeconds": 80,
+      "startSeconds": 91.19999999999999
+    },
+    {
+      "id": "act-05",
+      "file": "audio/act-05.wav",
+      "durationSeconds": 40,
+      "startSeconds": 171.6
+    },
+    {
+      "id": "act-06",
+      "file": "audio/act-06.wav",
+      "durationSeconds": 25,
+      "startSeconds": 212
+    },
+    {
+      "id": "act-07",
+      "file": "audio/act-07.wav",
+      "durationSeconds": 5,
+      "startSeconds": 237.4
+    }
+  ],
+  "totalSeconds": 242.4
+}
