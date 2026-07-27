@@ -1,0 +1,23 @@
+{
+  "name": "grid-operators-datacenters-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "remotion studio",
+    "build": "remotion render Main out/video.mp4",
+    "still": "remotion still",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.499",
+    "@remotion/media-utils": "4.0.499",
+    "@remotion/noise": "4.0.499",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.499"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.1",
+    "typescript": "5.5.4"
+  }
+}
