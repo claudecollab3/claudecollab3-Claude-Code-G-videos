@@ -21,6 +21,36 @@ broker/
                 authentication/ vault), auto-reconnect with backoff.
 ```
 
+## Implemented in Phase 3
+
+- `adapter.py` — the `BrokerAdapter` interface plus shared dataclasses
+  (`AccountInfo`, `Quote`, `CandleData`, `OrderRequest`/`OrderResult`, `Position`).
+- `paper.py` — a fully working in-memory `PaperBrokerAdapter` (simulated
+  fills/positions), usable today for demo trading and as the default for
+  `BrokerType.PAPER` credentials.
+- `mt5/adapter.py` — a real `MT5BrokerAdapter` against the official
+  `MetaTrader5` package (import deferred to `connect()`; blocking calls
+  offloaded via `asyncio.to_thread`). Only actually connects on a
+  Windows host with a running MT5 terminal.
+- `mt4/adapter.py` — a real `MT4BrokerAdapter` speaking a DWX-style
+  ZeroMQ request/response protocol to a bridge EA. Only actually connects
+  against a running MT4 terminal + EA.
+- `factory.py` — builds the right adapter for a `BrokerCredential` row,
+  decrypting its secret via `authentication.vault`.
+- `credentials.py` — secret encrypt/decrypt helpers + `connect_with_backoff`
+  (tenacity-based exponential backoff retry, used for both initial connect
+  and reconnect-after-drop).
+- `instruments.py` — the default supported instrument catalog (Gold,
+  Bitcoin, major Forex pairs, indices, crypto pairs).
+- `ingestion.py` — `MarketDataIngestionService` pulls OHLCV bars across
+  M1–D1 from a connected adapter and upserts them via
+  `database.repositories.market_data_repository`.
+
+Exposed via `POST/GET/DELETE /api/v1/broker/credentials`,
+`POST /api/v1/broker/credentials/{id}/connect` (test-connects and returns
+account info), `GET /api/v1/broker/instruments`,
+`GET /api/v1/market-data/candles`, and `POST /api/v1/market-data/sync`.
+
 ## Why MT5/MT4 integration is split this way
 
 - MT5's official Python package only runs on Windows and requires a live

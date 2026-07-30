@@ -22,6 +22,7 @@ if TYPE_CHECKING:
 class BrokerType(str, enum.Enum):
     MT5 = "mt5"
     MT4 = "mt4"
+    PAPER = "paper"  # simulated fills; server/login/password fields are unused placeholders
 
 
 class BrokerCredential(UUIDPKMixin, TimestampMixin, Base):

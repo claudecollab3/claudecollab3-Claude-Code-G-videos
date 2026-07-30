@@ -28,6 +28,16 @@ no module issues raw SQL directly against the database.
 - `migrations/versions/0001_initial_schema.py` — initial Alembic migration
   creating all of the above tables.
 
+## Implemented in Phase 3
+
+- `models/market_data.py` — `Timeframe` enum (M1..D1) and the `Candle`
+  (OHLCV bar) model, unique on `(symbol, timeframe, timestamp)`.
+- `repositories/market_data_repository.py` — upsert/get for candles.
+- `repositories/broker_credential_repository.py` — CRUD scoped to the
+  owning user.
+- `migrations/versions/0002_market_data_and_paper_broker.py` — adds the
+  `candles` table and the `paper` value to the `broker_type` enum.
+
 ## Running migrations
 
 ```bash

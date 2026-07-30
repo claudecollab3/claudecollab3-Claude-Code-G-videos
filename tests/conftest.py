@@ -1,3 +1,10 @@
+# ruff: noqa: E402
+import os
+
+# Must be set before `config.get_settings()` is first called (it's cached),
+# which happens as a side effect of importing database.session below.
+os.environ.setdefault("CREDENTIAL_ENCRYPTION_KEY", "AFvkM6JgEpdK6amEdtR-asjc88MF2ghUIe1rEZF1Qu0=")
+
 import fakeredis.aioredis
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -54,3 +61,10 @@ async def client():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
+
+
+@pytest_asyncio.fixture
+async def db_session():
+    async with TestSessionLocal() as session:
+        yield session
+        await session.commit()

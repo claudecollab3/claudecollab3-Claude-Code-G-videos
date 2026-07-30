@@ -66,6 +66,20 @@ every use, and stored only as a SHA-256 hash (see `authentication/jwt.py`).
 Broker credentials and other secrets are encrypted at rest via
 `authentication/vault.py` (Fernet) — never stored in plaintext.
 
+## Broker connectivity & market data
+
+- `POST/GET/DELETE /api/v1/broker/credentials` — store an encrypted MT5/MT4/paper login
+- `POST /api/v1/broker/credentials/{id}/connect` — test-connect, returns account info
+- `GET /api/v1/broker/instruments` — default Forex/Gold/Bitcoin/index/crypto catalog
+- `GET /api/v1/market-data/candles?symbol=EURUSD&timeframe=M5` — read persisted OHLCV
+- `POST /api/v1/market-data/sync` — pull fresh bars from a connected broker into the DB
+
+MT5 requires a Windows host with a running terminal (the official
+`MetaTrader5` package is Windows-only); MT4 requires a bridge EA speaking
+the ZeroMQ protocol in `broker/mt4/adapter.py`. Neither is reachable from
+this dev/CI environment — use a `paper` broker credential to exercise the
+full connect → sync → candle-read flow without live broker infrastructure.
+
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
