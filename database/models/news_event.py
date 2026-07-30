@@ -5,10 +5,11 @@ history/audit and the pre-trade news policy check."""
 import enum
 from datetime import datetime
 
-from sqlalchemy import DateTime, Enum, String
+from sqlalchemy import DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database.base import Base, TimestampMixin, UUIDPKMixin
+from database.types import str_enum
 
 
 class NewsImpact(str, enum.Enum):
@@ -23,7 +24,9 @@ class NewsEvent(UUIDPKMixin, TimestampMixin, Base):
     external_id: Mapped[str] = mapped_column(String(128), unique=True, index=True, nullable=False)
     name: Mapped[str] = mapped_column(String(256), nullable=False)
     currency: Mapped[str] = mapped_column(String(16), nullable=False, index=True)
-    impact: Mapped[NewsImpact] = mapped_column(Enum(NewsImpact, name="news_impact"), nullable=False)
+    impact: Mapped[NewsImpact] = mapped_column(
+        str_enum(NewsImpact, name="news_impact"), nullable=False
+    )
     event_time: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, index=True
     )

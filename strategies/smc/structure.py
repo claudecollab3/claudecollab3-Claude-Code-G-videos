@@ -38,24 +38,35 @@ class StructureEvent:
 
 def find_swing_points(df: pd.DataFrame, lookback: int = 2) -> list[SwingPoint]:
     """A bar is a confirmed swing high/low if it's the strict max/min within
-    `lookback` bars on both sides (a simple fractal pivot definition)."""
-    points: list[SwingPoint] = []
+    `lookback` bars on both sides (a simple fractal pivot definition).
+
+    Being the *unique* max/min of a `2*lookback+1`-wide window is equivalent
+    to being strictly greater/less than every other bar in that window, so
+    this is computed with vectorized shift-and-compare rather than a
+    per-bar Python loop with `.iloc` window slicing — the latter was slow
+    enough (one call per bar, each looking back over the whole window) to
+    make a full walk-forward backtest replay effectively hang.
+    """
     highs, lows = df["high"], df["low"]
-    n = len(df)
+    if len(df) <= 2 * lookback:
+        return []
 
-    for i in range(lookback, n - lookback):
-        window_high = highs.iloc[i - lookback : i + lookback + 1]
-        window_low = lows.iloc[i - lookback : i + lookback + 1]
+    is_high = pd.Series(True, index=df.index)
+    is_low = pd.Series(True, index=df.index)
+    for offset in range(1, lookback + 1):
+        is_high &= (highs > highs.shift(offset)) & (highs > highs.shift(-offset))
+        is_low &= (lows < lows.shift(offset)) & (lows < lows.shift(-offset))
 
-        if highs.iloc[i] == window_high.max() and (window_high == window_high.max()).sum() == 1:
-            points.append(
-                SwingPoint(timestamp=df.index[i], price=float(highs.iloc[i]), is_high=True)
-            )
-        if lows.iloc[i] == window_low.min() and (window_low == window_low.min()).sum() == 1:
-            points.append(
-                SwingPoint(timestamp=df.index[i], price=float(lows.iloc[i]), is_high=False)
-            )
-
+    points = [
+        SwingPoint(timestamp=ts, price=float(price), is_high=True)
+        for ts, price, flag in zip(df.index, highs, is_high, strict=True)
+        if flag
+    ]
+    points.extend(
+        SwingPoint(timestamp=ts, price=float(price), is_high=False)
+        for ts, price, flag in zip(df.index, lows, is_low, strict=True)
+        if flag
+    )
     return sorted(points, key=lambda p: p.timestamp)
 
 

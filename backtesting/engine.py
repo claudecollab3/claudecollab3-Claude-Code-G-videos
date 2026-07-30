@@ -14,10 +14,13 @@ Simplifications, documented rather than hidden:
   market intrabar. That realized `equity` is what feeds RiskManager's
   daily/weekly loss and drawdown checks during the backtest, same as it
   would from a live account snapshot.
-- Re-slicing each timeframe's DataFrame every bar (`.loc[:current_time]`)
-  is O(log n) per lookup thanks to the sorted DatetimeIndex, but the loop
-  overall is O(n) bars × O(bar-processing) — fine at the data volumes this
-  phase targets; further perf tuning is out of scope here.
+- Each bar's strategy context is a bounded trailing window
+  (`config.context_lookback_bars`), not the full history-to-date. An
+  earlier version re-sliced the *entire* history every bar; since
+  `strategies.smc.structure.find_swing_points` does an O(window) Python
+  scan per call, that made the whole backtest O(n^2) in the candle count —
+  confirmed to hang the server on a real dataset. Bounding the window
+  keeps each bar's work constant, so the full backtest is O(n).
 """
 
 import uuid
@@ -44,6 +47,7 @@ class BacktestConfig:
     min_lot: float = 0.01
     max_lot: float = 100.0
     min_history_bars: int = 60
+    context_lookback_bars: int = 500
 
 
 @dataclass
@@ -152,7 +156,11 @@ class BacktestEngine:
             peak_equity = max(peak_equity, balance)
             equity_curve.append((current_time, balance))
 
-            sliced = {tf: df.loc[:current_time] for tf, df in dataframes.items()}
+            sliced = {}
+            for tf, df in dataframes.items():
+                end_pos = df.index.searchsorted(current_time, side="right")
+                start_pos = max(0, end_pos - config.context_lookback_bars)
+                sliced[tf] = df.iloc[start_pos:end_pos]
             context = MarketContext(
                 symbol=config.symbol, timeframes=sliced, spread_points=config.spread_points
             )

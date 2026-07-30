@@ -1,6 +1,8 @@
 """Backtesting endpoint: replays persisted historical OHLCV data through
 the same strategy engine and risk manager used live."""
 
+import asyncio
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -67,7 +69,10 @@ async def run_backtest(
             min_history_bars=payload.min_history_bars,
         ),
     )
-    result = engine.run(candles_by_timeframe)
+    # CPU-bound (pandas/strategy analysis over every bar); offload to a
+    # thread so a large backtest doesn't block the event loop for everyone
+    # else on the server.
+    result = await asyncio.to_thread(engine.run, candles_by_timeframe)
     report = compute_performance_report(result)
 
     return BacktestResponse(

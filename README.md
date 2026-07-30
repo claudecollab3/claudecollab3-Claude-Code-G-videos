@@ -17,7 +17,8 @@ capital preservation as first-class citizens, not an afterthought.
 ## Project status
 
 Built iteratively in 8 phases (see [docs/ROADMAP.md](docs/ROADMAP.md)).
-Currently: **Phase 1 — Architecture & Scaffolding**.
+Currently: **Phase 7 — Web Dashboard and Notifications** complete; Phase 8
+(testing, profiling, security hardening, deployment) is next.
 
 ## Repository layout
 
@@ -125,6 +126,22 @@ The backtest loop reuses `strategies.registry.run_strategies` and
 `risk.manager.RiskManager` directly — no parallel "backtest-only" strategy
 or risk logic. AI ensemble confirmation and news-policy gating (Phase 5)
 aren't wired into the replay yet; that's documented follow-up work.
+
+## Web dashboard and notifications
+
+- React + TypeScript + Vite dashboard (`frontend/`, see `frontend/README.md`)
+  covering login/register, overview, broker accounts, strategies, signals,
+  AI predictions, news, backtesting, and notifications, with a live
+  WebSocket-driven notification feed and browser Notification API
+  integration.
+- `POST /api/v1/notifications/test`, `GET/PATCH /api/v1/notifications/preferences`,
+  `GET /api/v1/notifications/history`, `GET /api/v1/notifications/ws`
+  (WebSocket, token via query param) — see `notifications/README.md`.
+- Pluggable channels: Telegram, Discord, email (real HTTP/SMTP calls, no-op
+  if unconfigured), desktop and push (delivered over the dashboard
+  WebSocket via an in-process pub/sub hub).
+- `docker/nginx.conf` reverse-proxies `/api` (including the WebSocket) to
+  the backend container in the production image.
 
 ## Documentation
 

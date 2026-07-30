@@ -9,10 +9,11 @@ following the pattern of `Role`/`BrokerType`/`TradingMode`) and imported by
 import enum
 from datetime import datetime
 
-from sqlalchemy import DateTime, Enum, Float, String, UniqueConstraint
+from sqlalchemy import DateTime, Float, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database.base import Base, TimestampMixin, UUIDPKMixin
+from database.types import str_enum
 
 
 class Timeframe(str, enum.Enum):
@@ -35,7 +36,7 @@ class Candle(UUIDPKMixin, TimestampMixin, Base):
 
     symbol: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
     timeframe: Mapped[Timeframe] = mapped_column(
-        Enum(Timeframe, name="timeframe"), nullable=False, index=True
+        str_enum(Timeframe, name="timeframe"), nullable=False, index=True
     )
     timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
 

@@ -9,12 +9,12 @@ not code constants. Enforcement of these values happens in `risk/`
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import JSON, Enum, Float, ForeignKey, Integer, String
+from sqlalchemy import JSON, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from config.settings import TradingMode
 from database.base import Base, TimestampMixin, UUIDPKMixin
-from database.types import GUID
+from database.types import GUID, str_enum
 
 if TYPE_CHECKING:
     from database.models.user import User
@@ -28,7 +28,7 @@ class TradingConfig(UUIDPKMixin, TimestampMixin, Base):
     )
 
     trading_mode: Mapped[TradingMode] = mapped_column(
-        Enum(TradingMode, name="trading_mode"), default=TradingMode.PAPER, nullable=False
+        str_enum(TradingMode, name="trading_mode"), default=TradingMode.PAPER, nullable=False
     )
     confidence_threshold: Mapped[float] = mapped_column(Float, default=90.0, nullable=False)
 

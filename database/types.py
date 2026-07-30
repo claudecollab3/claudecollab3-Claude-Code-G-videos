@@ -5,9 +5,10 @@ speed. These TypeDecorators let the same model definitions work on both
 without leaking dialect-specific SQL into application code.
 """
 
+import enum
 import uuid
 
-from sqlalchemy import CHAR
+from sqlalchemy import CHAR, Enum
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.types import TypeDecorator
 
@@ -38,3 +39,16 @@ class GUID(TypeDecorator):
         if isinstance(value, uuid.UUID):
             return value
         return uuid.UUID(value)
+
+
+def str_enum(enum_cls: type[enum.Enum], *, name: str) -> Enum:
+    """A native Postgres ENUM whose stored values are the Python Enum
+    members' `.value` (matching what the Alembic migrations declare as the
+    literal enum labels), not SQLAlchemy's default of `.name`. Left at the
+    default, a str-Enum member like `Role.TRADER` (value `"trader"`) would
+    be sent to Postgres as the literal string `"TRADER"`, which the
+    migration never created as a valid label -- a mismatch SQLite's
+    generic Enum type doesn't enforce the same way, so it only surfaces
+    against a real Postgres database.
+    """
+    return Enum(enum_cls, name=name, values_callable=lambda cls: [member.value for member in cls])

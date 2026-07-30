@@ -9,11 +9,11 @@ import enum
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, Enum, ForeignKey, String
+from sqlalchemy import Boolean, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database.base import Base, TimestampMixin, UUIDPKMixin
-from database.types import GUID
+from database.types import GUID, str_enum
 
 if TYPE_CHECKING:
     from database.models.user import User
@@ -32,7 +32,7 @@ class BrokerCredential(UUIDPKMixin, TimestampMixin, Base):
         GUID(), ForeignKey("users.id"), nullable=False, index=True
     )
     broker_type: Mapped[BrokerType] = mapped_column(
-        Enum(BrokerType, name="broker_type"), nullable=False
+        str_enum(BrokerType, name="broker_type"), nullable=False
     )
     broker_name: Mapped[str] = mapped_column(String(128), nullable=False)
     server: Mapped[str] = mapped_column(String(128), nullable=False)
