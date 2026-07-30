@@ -9,6 +9,6 @@ phase starts.
 - [x] **Phase 3 — Broker connectivity (MT4/MT5) and market data ingestion**
 - [x] **Phase 4 — Strategy engine and risk management**
 - [x] **Phase 5 — AI prediction and signal generation**
-- [ ] **Phase 6 — Backtesting and optimization**
+- [x] **Phase 6 — Backtesting and optimization**
 - [ ] **Phase 7 — Web dashboard and notifications**
 - [ ] **Phase 8 — Testing, profiling, security hardening, and deployment**

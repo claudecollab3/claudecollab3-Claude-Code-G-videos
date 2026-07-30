@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from backend.app.api.v1.ai import router as ai_router
 from backend.app.api.v1.auth import router as auth_router
+from backend.app.api.v1.backtesting import router as backtesting_router
 from backend.app.api.v1.broker import router as broker_router
 from backend.app.api.v1.decision import router as decision_router
 from backend.app.api.v1.health import router as health_router
@@ -22,3 +23,4 @@ api_router.include_router(signals_router)
 api_router.include_router(ai_router)
 api_router.include_router(news_router)
 api_router.include_router(decision_router)
+api_router.include_router(backtesting_router)

@@ -1,6 +1,10 @@
-"""Runs the set of enabled strategies against a MarketContext and collects
-their signals. Enable/disable is driven by each user's TradingConfig
-(Phase 2 schema) rather than hardcoded in the engine."""
+"""Runs a set of strategies against a MarketContext and collects their
+signals. `StrategyRegistry` is what live trading uses (enable/disable
+driven by each user's TradingConfig, Phase 2 schema); `run_strategies` is
+the underlying function it calls, reused as-is by `backtesting/engine.py`
+so backtests exercise identical strategy-execution and fault-isolation
+logic to live trading — no parallel "backtest-only" code path.
+"""
 
 import structlog
 
@@ -20,6 +24,24 @@ ALL_STRATEGIES: dict[str, type[Strategy]] = {
 }
 
 
+def run_strategies(strategies: list[Strategy], context: MarketContext) -> list[Signal]:
+    signals: list[Signal] = []
+    for strategy in strategies:
+        try:
+            signal = strategy.analyze(context)
+        except Exception:
+            logger.warning(
+                "strategy_analysis_failed",
+                strategy=strategy.name,
+                symbol=context.symbol,
+                exc_info=True,
+            )
+            continue
+        if signal is not None:
+            signals.append(signal)
+    return signals
+
+
 class StrategyRegistry:
     def __init__(self, enabled_strategies: dict[str, bool] | None = None):
         enabled_strategies = enabled_strategies or {}
@@ -28,18 +50,4 @@ class StrategyRegistry:
         ]
 
     def run_all(self, context: MarketContext) -> list[Signal]:
-        signals: list[Signal] = []
-        for strategy in self._strategies:
-            try:
-                signal = strategy.analyze(context)
-            except Exception:
-                logger.warning(
-                    "strategy_analysis_failed",
-                    strategy=strategy.name,
-                    symbol=context.symbol,
-                    exc_info=True,
-                )
-                continue
-            if signal is not None:
-                signals.append(signal)
-        return signals
+        return run_strategies(self._strategies, context)

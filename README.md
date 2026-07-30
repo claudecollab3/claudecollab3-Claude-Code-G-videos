@@ -111,6 +111,21 @@ See `ai/README.md` for the honest scope notes on what's a lightweight
 stand-in here (e.g. no PyTorch/TensorFlow-based LSTM/Transformer, no deep
 RL) versus what's a real, working implementation behind the same interface.
 
+## Backtesting and optimization
+
+- `POST /api/v1/backtesting/run` — replays persisted OHLCV history through
+  the exact same strategy engine and risk manager used live (see
+  `backtesting/README.md`), returning win rate, profit factor, Sharpe/
+  Sortino, max drawdown, expectancy, monthly/yearly returns, the full
+  equity curve, and every simulated trade
+- `backtesting.optimization.grid_search()` — parameter-sweep optimization,
+  ranking results by a configurable objective (default: Sharpe ratio)
+
+The backtest loop reuses `strategies.registry.run_strategies` and
+`risk.manager.RiskManager` directly — no parallel "backtest-only" strategy
+or risk logic. AI ensemble confirmation and news-policy gating (Phase 5)
+aren't wired into the replay yet; that's documented follow-up work.
+
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
