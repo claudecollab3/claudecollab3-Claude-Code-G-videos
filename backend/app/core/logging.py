@@ -7,6 +7,7 @@ in development.
 
 import logging
 import sys
+from typing import Any
 
 import structlog
 
@@ -19,7 +20,7 @@ def configure_logging() -> None:
 
     logging.basicConfig(format="%(message)s", stream=sys.stdout, level=level)
 
-    shared_processors: list = [
+    shared_processors: list[Any] = [
         structlog.contextvars.merge_contextvars,
         structlog.processors.add_log_level,
         structlog.processors.TimeStamper(fmt="iso"),

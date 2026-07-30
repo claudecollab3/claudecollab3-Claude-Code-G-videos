@@ -4,6 +4,7 @@ uvicorn[standard]==0.30.6
 websockets==13.1
 pydantic==2.9.2
 pydantic-settings==2.5.2
+email-validator==2.2.0
 
 # --- Database ---
 sqlalchemy[asyncio]==2.0.35
@@ -16,6 +17,7 @@ redis==5.0.8
 # --- Auth / security ---
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+bcrypt==4.0.1  # pinned: passlib 1.7.4's self-test breaks on bcrypt>=4.1's stricter 72-byte handling
 pyotp==2.9.0
 cryptography==43.0.1
 

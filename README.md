@@ -44,13 +44,27 @@ config/           Centralized settings and environment configuration
 ## Quick start (development)
 
 ```bash
-cp .env.example .env            # fill in secrets / broker credentials
+cp .env.example .env             # fill in secrets / broker credentials
+python -c "from authentication.vault import Vault; print(Vault.generate_key())"  # -> CREDENTIAL_ENCRYPTION_KEY
 docker compose up -d postgres redis
 pip install -r requirements.txt -r requirements-dev.txt
+alembic upgrade head              # create the database schema
 uvicorn backend.app.main:app --reload
 ```
 
 Health check: `GET http://localhost:8000/api/v1/health`
+Readiness (checks DB connectivity): `GET http://localhost:8000/api/v1/health/ready`
+
+## Authentication
+
+- `POST /api/v1/auth/register`, `/login`, `/refresh`, `/logout`
+- `POST /api/v1/auth/2fa/setup`, `/2fa/enable`, `/2fa/disable`
+- `GET/PATCH /api/v1/users/me`, `GET /api/v1/users` (admin only)
+
+Access tokens are short-lived JWTs; refresh tokens are opaque, rotated on
+every use, and stored only as a SHA-256 hash (see `authentication/jwt.py`).
+Broker credentials and other secrets are encrypted at rest via
+`authentication/vault.py` (Fernet) — never stored in plaintext.
 
 ## Documentation
 

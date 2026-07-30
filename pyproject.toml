@@ -14,7 +14,10 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
-ignore = ["E501"]
+ignore = [
+    "E501",
+    "B008",  # FastAPI's Depends()-as-default-argument is the standard pattern
+]
 
 [tool.mypy]
 python_version = "3.11"
@@ -25,3 +28,4 @@ warn_unused_ignores = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
