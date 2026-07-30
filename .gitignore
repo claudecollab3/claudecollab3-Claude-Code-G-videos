@@ -1,0 +1,51 @@
+# Environments & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials/
+secrets/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+dist/
+build/
+
+# Node / frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Data & models
+*.db
+*.sqlite3
+data/raw/
+data/processed/
+models/artifacts/
+*.onnx
+*.h5
+*.pkl
+mlruns/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Docker
+docker/volumes/
