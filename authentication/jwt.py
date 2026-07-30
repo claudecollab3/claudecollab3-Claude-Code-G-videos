@@ -13,7 +13,8 @@ import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
-from jose import JWTError, jwt
+import jwt
+from jwt import PyJWTError
 
 from config import get_settings
 from database.models.user import Role
@@ -47,7 +48,7 @@ def decode_access_token(token: str) -> AccessTokenPayload:
     settings = get_settings()
     try:
         payload = jwt.decode(token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])
-    except JWTError as exc:
+    except PyJWTError as exc:
         raise TokenError("Invalid or expired access token") from exc
 
     if payload.get("type") != "access":

@@ -17,7 +17,7 @@ def _limits(**overrides) -> RiskLimits:
         confidence_threshold=90.0,
     )
     defaults.update(overrides)
-    return RiskLimits(**defaults)
+    return RiskLimits(**defaults)  # type: ignore[arg-type]
 
 
 def _account(**overrides) -> AccountState:
@@ -29,7 +29,7 @@ def _account(**overrides) -> AccountState:
         peak_equity=1000.0,
     )
     defaults.update(overrides)
-    return AccountState(**defaults)
+    return AccountState(**defaults)  # type: ignore[arg-type]
 
 
 def _signal(**overrides) -> Signal:
@@ -43,7 +43,7 @@ def _signal(**overrides) -> Signal:
         confidence=95.0,
     )
     defaults.update(overrides)
-    return Signal(**defaults)
+    return Signal(**defaults)  # type: ignore[arg-type]
 
 
 def test_approved_trade_returns_sized_volume():

@@ -21,34 +21,39 @@ class OrderBlock:
 def detect_order_blocks(
     df: pd.DataFrame, *, displacement_atr_multiple: float = 1.5, atr_period: int = 14
 ) -> list[OrderBlock]:
-    atr_series = _atr(df, atr_period)
-    blocks: list[OrderBlock] = []
+    """Vectorized: per-bar `.iloc` slicing in a Python loop was slow enough,
+    called once per bar of a walk-forward backtest, to make a full replay
+    take minutes (see backtesting/README.md's performance note)."""
+    n = len(df)
+    if n <= 1:
+        return []
 
-    for i in range(1, len(df)):
-        threshold = atr_series.iloc[i]
-        if pd.isna(threshold) or threshold == 0:
-            continue
+    atr_values = _atr(df, atr_period).to_numpy()
+    close, open_ = df["close"].to_numpy(), df["open"].to_numpy()
 
-        body = df["close"].iloc[i] - df["open"].iloc[i]
-        prev = df.iloc[i - 1]
+    body = close[1:] - open_[1:]
+    threshold = atr_values[1:]
+    prev_close, prev_open = close[:-1], open_[:-1]
+    prev_timestamps = df.index[:-1]
 
-        if body > displacement_atr_multiple * threshold and prev["close"] < prev["open"]:
-            blocks.append(
-                OrderBlock(
-                    timestamp=df.index[i - 1],
-                    top=float(prev["open"]),
-                    bottom=float(prev["close"]),
-                    bullish=True,
-                )
-            )
-        elif body < -displacement_atr_multiple * threshold and prev["close"] > prev["open"]:
-            blocks.append(
-                OrderBlock(
-                    timestamp=df.index[i - 1],
-                    top=float(prev["close"]),
-                    bottom=float(prev["open"]),
-                    bullish=False,
-                )
-            )
+    valid = ~pd.isna(threshold) & (threshold != 0)
+    bullish_mask = valid & (body > displacement_atr_multiple * threshold) & (prev_close < prev_open)
+    bearish_mask = (
+        valid & (body < -displacement_atr_multiple * threshold) & (prev_close > prev_open)
+    )
 
+    blocks = [
+        OrderBlock(timestamp=ts, top=float(po), bottom=float(pc), bullish=True)
+        for ts, po, pc, flag in zip(
+            prev_timestamps, prev_open, prev_close, bullish_mask, strict=True
+        )
+        if flag
+    ]
+    blocks.extend(
+        OrderBlock(timestamp=ts, top=float(pc), bottom=float(po), bullish=False)
+        for ts, po, pc, flag in zip(
+            prev_timestamps, prev_open, prev_close, bearish_mask, strict=True
+        )
+        if flag
+    )
     return blocks

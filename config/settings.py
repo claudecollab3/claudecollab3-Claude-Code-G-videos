@@ -105,6 +105,23 @@ class Settings(BaseSettings):
     def is_production(self) -> bool:
         return self.app_env == AppEnv.PRODUCTION
 
+    def assert_production_ready(self) -> None:
+        """Fail fast at startup rather than silently serving production
+        traffic with a dev-only JWT secret or a missing encryption key —
+        both defaults exist purely for local development convenience."""
+        if not self.is_production:
+            return
+        if self.jwt_secret_key == "dev-only-insecure-secret" or len(self.jwt_secret_key) < 32:
+            raise RuntimeError(
+                "APP_ENV=production but JWT_SECRET_KEY is missing or is the "
+                "insecure development default. Set a long, random secret."
+            )
+        if not self.credential_encryption_key:
+            raise RuntimeError(
+                "APP_ENV=production but CREDENTIAL_ENCRYPTION_KEY is not set. "
+                "Generate one with authentication.vault.Vault.generate_key()."
+            )
+
 
 @lru_cache
 def get_settings() -> Settings:

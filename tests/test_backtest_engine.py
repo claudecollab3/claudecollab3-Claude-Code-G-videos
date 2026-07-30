@@ -1,9 +1,12 @@
+import random
+import time
 from datetime import UTC, datetime, timedelta
 
 from backtesting.engine import BacktestConfig, BacktestEngine
 from database.models.market_data import Candle, Timeframe
 from risk.limits import RiskLimits
 from strategies.base import Direction, MarketContext, Signal, Strategy
+from strategies.registry import ALL_STRATEGIES
 
 _START = datetime(2026, 1, 1, tzinfo=UTC)
 
@@ -79,7 +82,7 @@ def _default_limits(**overrides) -> RiskLimits:
         confidence_threshold=90.0,
     )
     defaults.update(overrides)
-    return RiskLimits(**defaults)
+    return RiskLimits(**defaults)  # type: ignore[arg-type]
 
 
 def _run(strategy: Strategy, rows: list[tuple[float, float, float, float]], **config_overrides):
@@ -176,3 +179,34 @@ def test_insufficient_history_returns_empty_result():
     assert result.trades == []
     assert result.equity_curve == []
     assert result.ending_balance == result.starting_balance
+
+
+def test_full_replay_completes_quickly_with_all_strategies():
+    """Regression guard: an earlier version re-sliced the entire history
+    and re-ran full SMC structure/order-block/FVG detection from scratch on
+    every bar, which was O(n^2) and hung the server on a realistic dataset
+    (see backtesting/README.md). 400 bars x all registered strategies
+    should complete in low single-digit seconds; a reintroduced per-bar
+    quadratic cost would blow past this bound by orders of magnitude."""
+    random.seed(0)
+    rows = []
+    price = 1.1000
+    for _ in range(400):
+        o = price
+        c = price + random.uniform(-0.001, 0.001)
+        h = max(o, c) + random.uniform(0, 0.0005)
+        low_ = min(o, c) - random.uniform(0, 0.0005)
+        rows.append((o, h, low_, c))
+        price = c
+
+    engine = BacktestEngine(
+        strategies=[cls() for cls in ALL_STRATEGIES.values()],
+        config=BacktestConfig(
+            symbol="EURUSD",
+            primary_timeframe=Timeframe.H1,
+            risk_limits=_default_limits(confidence_threshold=50.0),
+        ),
+    )
+    start = time.monotonic()
+    engine.run({Timeframe.H1: _candles_from_ohlc(rows)})
+    assert time.monotonic() - start < 15.0

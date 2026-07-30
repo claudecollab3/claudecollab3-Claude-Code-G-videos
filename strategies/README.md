@@ -42,6 +42,19 @@ canonical algorithm; `smc/structure.py` documents the simplified heuristic
 used here (fractal swing pivots + same-direction/opposite-direction
 breaks) rather than presenting it as *the* official definition.
 
+## Known follow-up (found during Phase 8 performance profiling)
+
+`smc/structure.py::find_swing_points`, `smc/fair_value_gap.py`, and
+`smc/order_blocks.py` were each rewritten from a per-bar Python loop with
+`.iloc` slicing to vectorized shift/slice-and-compare — see
+`backtesting/README.md`'s performance note for why. `smc/liquidity.py::
+detect_liquidity_sweeps` has the same per-bar-loop shape (and is actually
+worse: nested over every bar *and* every swing point), but it isn't called
+by `smc_strategy.py` or any other registered strategy today, so it wasn't
+on the hot path this session found. If it's ever wired into a strategy, it
+should be vectorized the same way first — the `analyze()` method calling it
+runs once per backtest bar just like the others.
+
 ## Not yet built
 
 `scalping.py`, `swing.py`, `reversal.py`, `grid.py`, `martingale.py`

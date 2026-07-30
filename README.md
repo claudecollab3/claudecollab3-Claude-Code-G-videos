@@ -17,8 +17,7 @@ capital preservation as first-class citizens, not an afterthought.
 ## Project status
 
 Built iteratively in 8 phases (see [docs/ROADMAP.md](docs/ROADMAP.md)).
-Currently: **Phase 7 — Web Dashboard and Notifications** complete; Phase 8
-(testing, profiling, security hardening, deployment) is next.
+All 8 phases are complete.
 
 ## Repository layout
 
@@ -147,4 +146,6 @@ aren't wired into the replay yet; that's documented follow-up work.
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Roadmap / Phases](docs/ROADMAP.md)
+- [Deployment](docs/DEPLOYMENT.md)
+- [Security notes](docs/SECURITY.md)
 - [Disclaimer & Risk Notice](docs/DISCLAIMER.md)

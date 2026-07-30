@@ -23,7 +23,7 @@ from database.session import get_db
 # don't require a live Redis server.
 rate_limit.get_redis.cache_clear()
 _fake_redis = fakeredis.aioredis.FakeRedis(decode_responses=True)
-rate_limit.get_redis = lambda: _fake_redis
+rate_limit.get_redis = lambda: _fake_redis  # type: ignore[assignment]
 
 test_engine = create_async_engine(
     "sqlite+aiosqlite:///:memory:",

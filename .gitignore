@@ -35,6 +35,7 @@ yarn-error.log*
 # Data & models
 *.db
 *.sqlite3
+*.rdb
 data/raw/
 data/processed/
 models/artifacts/
