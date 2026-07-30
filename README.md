@@ -80,6 +80,20 @@ the ZeroMQ protocol in `broker/mt4/adapter.py`. Neither is reachable from
 this dev/CI environment — use a `paper` broker credential to exercise the
 full connect → sync → candle-read flow without live broker infrastructure.
 
+## Strategies, risk, and signal evaluation
+
+- `GET /api/v1/strategies` / `PATCH /api/v1/strategies/{name}` — list/toggle
+  per-user strategy enablement (trend-following, mean-reversion, breakout, SMC)
+- `POST /api/v1/signals/evaluate` — runs enabled strategies against persisted
+  OHLCV data for a symbol and returns each candidate signal alongside the
+  risk manager's approve/reject decision and sized volume
+
+Every signal passes through `risk.manager.RiskManager` before it could ever
+be executed: confidence threshold, spread, open-position/trade-count caps,
+daily/weekly loss, drawdown, and position-size viability, in that order —
+see `risk/README.md`. `execution/engine.py` is what actually places an
+approved order via a `BrokerAdapter`.
+
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)

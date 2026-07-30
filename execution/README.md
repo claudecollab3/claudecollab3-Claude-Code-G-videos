@@ -1,18 +1,23 @@
 # execution/
 
-Order execution engine, built out in **Phase 3/4**. Takes a risk-approved
-order and talks to a `BrokerAdapter` (see `broker/`) to place/manage it.
+Order execution engine. Takes a risk-approved `Signal` + `RiskDecision` and
+talks to a `BrokerAdapter` (see `broker/`) to place it.
 
-Planned structure:
+## Implemented in Phase 4
 
-```
-execution/
-  engine.py         open/modify/close/partial-close, move SL/TP, trail stop,
-                    cancel pending orders
-  retry.py          Retry-on-transient-error policy (tenacity-based)
-  latency.py        Execution latency + broker response logging
-```
+`engine.py` — `ExecutionEngine.execute(signal, decision)`: refuses to run
+against a rejected `RiskDecision`, converts the approved signal + sized
+volume into an `OrderRequest`, submits it via the broker adapter with
+tenacity-based retry on transient `BrokerConnectionError`s, and records
+latency on the returned `OrderResult`.
 
 The engine is broker-agnostic: it depends only on the `BrokerAdapter`
 interface from `broker/`, so the same execution logic runs against MT5, MT4,
-paper trading, and backtesting fills.
+paper trading, and (Phase 6) backtesting fills.
+
+## Not yet built
+
+Post-entry position management (move SL/TP, trailing stop, partial close,
+cancel pending orders) — `risk/guards.py` already has the break-even/
+trailing-stop/partial-close *calculations*; wiring them into a live
+position-monitoring loop that calls back into the engine is follow-up work.

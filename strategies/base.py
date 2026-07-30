@@ -2,13 +2,15 @@
 
 Every strategy (SMC/ICT, price action, indicator-based, etc.) implements this
 interface so the strategy engine can enable/disable and combine them
-uniformly. Full detector implementations land in Phase 4.
+uniformly.
 """
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+
+import pandas as pd
 
 
 class Direction(str, Enum):
@@ -18,10 +20,16 @@ class Direction(str, Enum):
 
 @dataclass
 class MarketContext:
-    """Snapshot of everything a strategy needs to evaluate a symbol."""
+    """Snapshot of everything a strategy needs to evaluate a symbol.
+
+    `timeframes` maps a `Timeframe.value` string (e.g. "M15") to an OHLCV
+    DataFrame (see `strategies.data.candles_to_dataframe`), indexed by
+    timestamp and sorted ascending. A strategy only reads the timeframes it
+    actually needs.
+    """
 
     symbol: str
-    timeframes: dict  # e.g. {"M1": DataFrame, "M5": DataFrame, ...}
+    timeframes: dict[str, pd.DataFrame]
     spread_points: float
     session: str | None = None
     news_blackout: bool = False
