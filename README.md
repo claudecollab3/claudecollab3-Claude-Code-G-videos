@@ -94,6 +94,23 @@ daily/weekly loss, drawdown, and position-size viability, in that order —
 see `risk/README.md`. `execution/engine.py` is what actually places an
 approved order via a `BrokerAdapter`.
 
+## AI prediction, news engine, and the Decision & Confidence Engine
+
+- `POST /api/v1/ai/predict` — runs the model ensemble (XGBoost, LightGBM,
+  Gaussian Naive Bayes, a small neural net, a contextual-bandit RL agent,
+  and a deterministic momentum baseline) against persisted OHLCV data and
+  persists an `AIPrediction`
+- `GET /api/v1/news/upcoming` / `POST /api/v1/news/policy` — economic
+  calendar lookup and the pre-trade Trade/Wait/Reduce-risk/Close-existing
+  decision (no calendar vendor is wired in by default — see `ai/README.md`)
+- `POST /api/v1/decision/evaluate` — the full pipeline in one call:
+  strategies → AI ensemble confirmation → news policy → risk manager,
+  returning each confirmed signal with a pass/fail checklist
+
+See `ai/README.md` for the honest scope notes on what's a lightweight
+stand-in here (e.g. no PyTorch/TensorFlow-based LSTM/Transformer, no deep
+RL) versus what's a real, working implementation behind the same interface.
+
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)

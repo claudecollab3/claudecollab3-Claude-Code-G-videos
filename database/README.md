@@ -38,6 +38,16 @@ no module issues raw SQL directly against the database.
 - `migrations/versions/0002_market_data_and_paper_broker.py` — adds the
   `candles` table and the `paper` value to the `broker_type` enum.
 
+## Implemented in Phase 5
+
+- `models/ai_prediction.py` — `AIPrediction`: every AI ensemble prediction
+  (direction, confidence, per-model votes, weights, features), for audit and
+  future retraining/backtesting analysis.
+- `models/news_event.py` — `NewsEvent` / `NewsImpact`: persisted economic
+  calendar events.
+- `repositories/ai_prediction_repository.py`, `repositories/news_event_repository.py`
+- `migrations/versions/0003_ai_predictions_and_news_events.py`
+
 ## Running migrations
 
 ```bash

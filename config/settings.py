@@ -84,6 +84,7 @@ class Settings(BaseSettings):
 
     # --- News engine ---
     economic_calendar_api_key: str = ""
+    economic_calendar_base_url: str = ""
     news_trading_enabled: bool = False
 
     # --- Notifications ---
