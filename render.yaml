@@ -1,0 +1,71 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+#
+# One-click deploy: on Render, "New +" -> "Blueprint" -> connect this repo.
+# Render reads this file and provisions everything below on the free tier.
+#
+# After the first deploy, double-check (Render dashboard -> each service ->
+# Environment) that:
+#   - tradingbot-dashboard's VITE_API_BASE_URL matches tradingbot-api's
+#     actual assigned URL (they're the predictable https://<name>.onrender.com
+#     form below, but Render appends a suffix if the name was already taken)
+#   - tradingbot-api's CORS_ALLOWED_ORIGINS matches tradingbot-dashboard's
+#     actual assigned URL, for the same reason
+#   - tradingbot-api's CREDENTIAL_ENCRYPTION_KEY is set (marked sync:false
+#     below -- Blueprints don't generate Fernet-compatible values, so this
+#     one has to be pasted in manually; see docs/DEPLOYMENT.md)
+#
+# Free-tier caveats (see docs/DEPLOYMENT.md): the free Postgres expires
+# after 30 days unless upgraded, and free web services spin down after 15
+# minutes of inactivity (the next request just takes ~30-60s to wake it).
+
+databases:
+  - name: tradingbot-db
+    plan: free
+    region: oregon
+
+services:
+  - type: keyvalue
+    name: tradingbot-cache
+    plan: free
+    region: oregon
+
+  - type: web
+    name: tradingbot-api
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./docker/Dockerfile.backend
+    dockerContext: .
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tradingbot-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: tradingbot-cache
+          property: connectionString
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: TRADING_MODE
+        value: paper
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: CREDENTIAL_ENCRYPTION_KEY
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://tradingbot-dashboard.onrender.com
+
+  - type: web
+    name: tradingbot-dashboard
+    runtime: static
+    region: oregon
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://tradingbot-api.onrender.com/api/v1

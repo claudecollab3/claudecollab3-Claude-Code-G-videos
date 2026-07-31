@@ -1,4 +1,19 @@
-const API_BASE = "/api/v1";
+// Same-origin "/api/v1" works when a reverse proxy (Vite dev, or
+// docker/nginx.conf in production) sits in front of both frontend and
+// backend. When they're deployed as separate services with different
+// origins (e.g. a Render static site + a Render web service), set
+// VITE_API_BASE_URL to the backend's full URL at build time instead.
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api/v1";
+
+export function websocketUrl(path: string): string {
+  if (import.meta.env.VITE_API_BASE_URL) {
+    const base = new URL(import.meta.env.VITE_API_BASE_URL);
+    const protocol = base.protocol === "https:" ? "wss" : "ws";
+    return `${protocol}://${base.host}${path}`;
+  }
+  const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+  return `${protocol}://${window.location.host}${path}`;
+}
 
 let accessToken: string | null = localStorage.getItem("access_token");
 let refreshToken: string | null = localStorage.getItem("refresh_token");

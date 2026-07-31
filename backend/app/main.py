@@ -43,9 +43,14 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    # In production, same-origin deployments (a reverse proxy in front of
+    # both frontend and backend, e.g. docker/nginx.conf) need no cross-origin
+    # access at all. A split deployment (frontend and backend on different
+    # domains, e.g. separate hosted services) needs the frontend's origin
+    # explicitly allow-listed via CORS_ALLOWED_ORIGINS.
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"] if not settings.is_production else [],
+        allow_origins=["*"] if not settings.is_production else settings.cors_origins_list,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

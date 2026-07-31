@@ -5,5 +5,9 @@
 # subsequent deploy/restart.
 set -e
 
+# Managed platforms (e.g. Render) assign the listen port via $PORT and
+# route traffic to it; default to 8000 for docker-compose / local use.
+: "${PORT:=8000}"
+
 alembic upgrade head
-exec uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
+exec uvicorn backend.app.main:app --host 0.0.0.0 --port "$PORT"

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getAccessToken } from "../api";
+import { getAccessToken, websocketUrl } from "../api";
 
 export interface NotificationPayload {
   event: string;
@@ -16,9 +16,8 @@ export function useNotifications() {
     const token = getAccessToken();
     if (!token) return undefined;
 
-    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
     const socket = new WebSocket(
-      `${protocol}://${window.location.host}/api/v1/notifications/ws?token=${encodeURIComponent(token)}`,
+      websocketUrl(`/api/v1/notifications/ws?token=${encodeURIComponent(token)}`),
     );
     socketRef.current = socket;
 

@@ -8,7 +8,7 @@ into `os.environ` directly. Values are loaded from the process environment
 from enum import Enum
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -43,10 +43,27 @@ class Settings(BaseSettings):
     jwt_access_token_expire_minutes: int = 15
     jwt_refresh_token_expire_days: int = 7
     credential_encryption_key: str = Field(default="")
+    # Comma-separated origins allowed to call the API cross-origin in
+    # production (e.g. a frontend deployed as a separate service on a
+    # different domain, with no reverse proxy putting it on the same
+    # origin). Empty means no cross-origin access is allowed.
+    cors_allowed_origins: str = ""
     two_factor_issuer: str = "TradingBot"
 
     # --- Database ---
     database_url: str = "postgresql+asyncpg://trading_bot:change-me@localhost:5432/trading_bot"
+
+    @field_validator("database_url")
+    @classmethod
+    def _use_asyncpg_driver(cls, value: str) -> str:
+        """Managed Postgres providers (e.g. Render) hand out a plain
+        postgres:// / postgresql:// connection string; SQLAlchemy's async
+        engine needs the asyncpg driver named explicitly."""
+        if value.startswith("postgres://"):
+            return "postgresql+asyncpg://" + value[len("postgres://") :]
+        if value.startswith("postgresql://"):
+            return "postgresql+asyncpg://" + value[len("postgresql://") :]
+        return value
 
     # --- Redis ---
     redis_url: str = "redis://localhost:6379/0"
@@ -104,6 +121,10 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.app_env == AppEnv.PRODUCTION
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_allowed_origins.split(",") if origin.strip()]
 
     def assert_production_ready(self) -> None:
         """Fail fast at startup rather than silently serving production
